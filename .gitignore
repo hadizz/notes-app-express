@@ -31,5 +31,3 @@ debug.log
 # IDE configuration files
 .idea/
 .vscode/
-
-.env
