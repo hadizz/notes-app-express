@@ -1,0 +1,26 @@
+version: '3'
+services:
+  mongo:
+    image: mongo:latest
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=1234
+    ports:
+      - "27017:27017"
+    command: mongod
+  redis:
+    container_name: redis-cache
+    image: redis
+    ports:
+      - '6379:6379'
+#  redis-insight:
+#    image: redislabs/redisinsight:latest
+#    container_name: redis-insight
+#    ports:
+#      - "8001:8001"
+#    environment:
+#      - REDIS_HOSTS=redis:6379
+#    depends_on:
+#      - redis
+#    links:
+#      - redis
