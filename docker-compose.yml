@@ -8,19 +8,32 @@ services:
     ports:
       - "27017:27017"
     command: mongod
+
   redis:
     container_name: redis-cache
     image: redis
     ports:
       - '6379:6379'
-#  redis-insight:
-#    image: redislabs/redisinsight:latest
-#    container_name: redis-insight
-#    ports:
-#      - "8001:8001"
-#    environment:
-#      - REDIS_HOSTS=redis:6379
-#    depends_on:
-#      - redis
-#    links:
-#      - redis
+
+  redis-insight:
+    image: redislabs/redisinsight:latest
+    container_name: redis-insight
+    ports:
+      - "8001:8001"
+    environment:
+      - REDIS_HOSTS=redis:6379
+    depends_on:
+      - redis
+    links:
+      - redis
+
+  node-app:
+    build:
+      context: .
+    environment:
+      - PORT=${PORT}
+    ports:
+      - "${PORT}:${PORT}"
+    depends_on:
+      - mongo
+      - redis
