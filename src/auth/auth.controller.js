@@ -20,7 +20,6 @@ const createTokenSendResponse = (user, res, next, restJson = {}) => {
                 const error = Error('Unable to login');
                 next(error);
             } else {
-                // login all good
                 res.json({token, ...restJson});
             }
         },
@@ -52,7 +51,7 @@ const signup = async (req, res, next) => {
             },
             {upsert: true}
         )
-        createTokenSendResponse(insertedUser, res, next, {message: 'کاربر با موفقیت ساخته شد'});
+        createTokenSendResponse(insertedUser, res, next, {message: 'User successfully create'});
     } catch (error) {
         res.status(500);
         next(error);
@@ -68,7 +67,7 @@ const login = async (req, res, next) => {
         if (result) {
             createTokenSendResponse(req.loggingInUser, res, next);
         } else {
-            res.json({result: 'can not login user', error: 'Unable to login', resultError: result.error})
+            res.json({result: 'User can not login', error: 'Unable to login', resultError: result.error})
             // res.status(422);
             // throw new Error('Unable to login');
         }
@@ -86,15 +85,15 @@ const checkUserAccount = async (req, res, next) => {
         if (!user) {
             // new user
             console.log('new user')
-            res.json({message: 'کاربری با این شماره تلفن یافت نشد، می‌توانید جهت ثبت نام اقدام نمایید.', userType: 100})
+            res.json({message: 'No user found with this phone number, you can proceed to signup', userType: 100})
         } else {
             if (!user.registered) {
-                // user has already send its phonenumber to the system and we record it
-                res.json({message: 'می‌توانید جهت ثبت نام اقدام نمایید.', userType: 102})
+                // user has already sent its phone number to the system, and we record it
+                res.json({message: 'can proceed to signup', userType: 102})
             } else {
                 // user has account
                 console.log('user has account')
-                res.json({message: 'کاربر اکانت دارد.', userType: 101})
+                res.json({message: 'user has already an account', userType: 101})
             }
         }
     });

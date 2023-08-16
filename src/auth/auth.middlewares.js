@@ -2,23 +2,14 @@ const jwt = require('jsonwebtoken');
 
 const schema = require('./auth.schema');
 const users = require('./auth.model');
-const db = require("../db/connection");
 const redisClient = require("../redis/connection");
 const {ignore} = require("nodemon/lib/rules");
 
 function checkTokenSetUser(req, res, next) {
     const authHeader = req.get('Authorization');
-    console.log({authHeader})
     if (authHeader) {
-        // const token = authHeader.split(' ')[1];
-        // console.log({token})
         if (authHeader) {
-            // use jwt lib to decode
             jwt.verify(authHeader, process.env.TOKEN_SECRET, (error, user) => {
-                if (error) {
-                    console.log(error);
-                }
-                console.log({user})
                 req.user = user;
                 next();
             });
@@ -32,7 +23,6 @@ function checkTokenSetUser(req, res, next) {
 
 function isLoggedIn(req, res, next) {
     if (req.user) {
-        console.log('isLoggedIn')
         next();
     } else {
         unAuthorized(res, next);
@@ -41,10 +31,8 @@ function isLoggedIn(req, res, next) {
 
 function isAdmin(req, res, next) {
     if (req.user.role === 'admin') {
-        console.log('is admin')
         next();
     } else {
-        console.log('not admin')
         unAuthorized(res, next);
     }
 }
@@ -70,18 +58,15 @@ const validateUser = (defaultErrorMessage = '', type) => (req, res, next) => {
 const findUser = (defaultLoginError, isError, errorCode = 422) => (req, res, next) => {
     users.findOne({username: req.body.username}, undefined, (err, user) => {
         // todo it should work in login and signup mode
-        console.log(user)
         if (isError(user)) {
             res.status(errorCode);
-            next(new Error('کاربری یافت نشد'));
+            next(new Error('No user found'));
         } else {
             req.loggingInUser = user;
             next();
         }
     });
 };
-
-const OTPAttemptsDB = db.get('OTPAttempts');
 
 const generateOTP = (limit = 6) => {
     const digits = '0123456789';
@@ -116,12 +101,11 @@ const addOTPAttemptRecord = (type) => async (req, res, next) => {
     switch (userOtpData.type) {
         case REDIS_USER_OTP_BLOCKED: {
             res.status(422)
-            next(new Error('بیش از حد مجاز اقدام به درخواست کرده اید. دسترسی شما بمدت 1 دقیقه محدود شد.🍆'))
+            next(new Error('You have requested more than the limit. Your access is limited for 1 minute. 🍆'))
             break;
         }
         case REDIS_USER_OTP_HAS_CHANCE: {
             const newParsed = JSON.stringify({otp: userOtpData.value.otp, tries: ++userOtpData.value.tries})
-            // await redisClient.set(req.body.username, newParsed, 'KEEPTTL');
             await redisClient.sendCommand(['SET', req.body.username, newParsed, 'KEEPTTL']);
             next();
             break;
@@ -143,7 +127,6 @@ const addOTPAttemptRecord = (type) => async (req, res, next) => {
                     {upsert: true}
                 )
                 const otp = generateOTP()
-                console.log('otp: ', otp)
                 const newValue = JSON.stringify({otp, tries: 1})
                 await redisClient.sendCommand(['SET', req.body.username, newValue, 'EX', '60']);
                 // await redisClient.set(req.body.username, newValue);
@@ -152,24 +135,11 @@ const addOTPAttemptRecord = (type) => async (req, res, next) => {
                 break;
             } catch (e) {
                 res.status(422);
-                const error = Error('Unable to login [-100-]');
+                const error = Error('[code 101]: Unable to login');
                 next(error);
             }
         }
     }
-
-    // OTPAttemptsDB.find({username: req.body.username}).then(results => {
-    //     if (results.length > 5) {
-    //         res.status(422)
-    //         next(new Error('بیش از حد مجاز اقدام به درخواست کرده اید. دسترسی شما بمدت ۲۰ دقیقه محدود شد.🍆'))
-    //     } else {
-    //         OTPAttemptsDB
-    //             .insert({username: req.body.username, date: new Date().toISOString(), type})
-    //             .then(() => {
-    //                 next();
-    //             });
-    //     }
-    // })
 }
 
 module.exports = {

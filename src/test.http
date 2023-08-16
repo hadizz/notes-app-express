@@ -3,7 +3,7 @@ POST http://localhost:3001/auth/checkUserAccount
 Content-Type: application/json
 
 {
-  "username": "09025413379"
+  "username": "testnumber"
 }
 
 ### Send POST request with body as parameters
