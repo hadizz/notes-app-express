@@ -1,4 +1,4 @@
-# Pocket Service
+# Notes App
 an auth protected service for storing notes
 
 ##### Tech:
