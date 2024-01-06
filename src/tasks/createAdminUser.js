@@ -30,7 +30,7 @@ async function createAdminUser() {
     console.error(error);
   } finally {
     console.log('------closing------')
-    db.close();
+    await db.close();
   }
 }
 

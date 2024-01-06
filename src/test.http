@@ -3,40 +3,15 @@ POST http://localhost:3001/auth/checkUserAccount
 Content-Type: application/json
 
 {
-  "username": "testnumber"
+  "username": "testusername"
 }
 
 ### Send POST request with body as parameters
-POST https://httpbin.org/post
-Content-Type: application/x-www-form-urlencoded
-
-id=999&value=content
-
-### Send a form with the text and file fields
-POST https://httpbin.org/post
-Content-Type: multipart/form-data; boundary=WebAppBoundary
-
---WebAppBoundary
-Content-Disposition: form-data; name="element-name"
-Content-Type: text/plain
-
-Name
---WebAppBoundary
-Content-Disposition: form-data; name="data"; filename="data.json"
-Content-Type: application/json
-
-< ./request-form-data.json
---WebAppBoundary--
-
-### Send request with dynamic variables in request's body
-POST https://httpbin.org/post
+POST http://localhost:3001/api/v1/notes
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NTk5Y2U4ZmFmMGVmMWEyOTc0M2E3ZGMiLCJ1c2VybmFtZSI6IjA5MDI1NDEzMzc5Iiwicm9sZSI6InVzZXIiLCJhY3RpdmUiOnRydWUsImlhdCI6MTcwNDU3ODg5MSwiZXhwIjoxNzA0NTgyNDkxfQ.xXw3OwRGzpi9XbTG2ikuj-GscelfyU0uHHyL4qoCMFg
 Content-Type: application/json
 
 {
-  "id": {{$uuid}},
-  "price": {{$randomInt}},
-  "ts": {{$timestamp}},
-  "value": "content"
+  "title": "hello",
+  "note": "123123"
 }
-
-###
